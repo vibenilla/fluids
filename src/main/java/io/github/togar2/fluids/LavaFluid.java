@@ -1,6 +1,5 @@
 package io.github.togar2.fluids;
 
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.instance.Instance;
@@ -9,7 +8,8 @@ import net.minestom.server.instance.block.BlockFace;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.server.play.WorldEventPacket;
 import net.minestom.server.utils.PacketSendingUtils;
-import net.minestom.server.world.DimensionType;
+import net.minestom.server.world.attribute.EnvironmentAttribute;
+import net.minestom.server.world.attribute.EnvironmentAttributeMap;
 import net.minestom.server.worldevent.WorldEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,14 +29,12 @@ public class LavaFluid extends FlowableFluid {
 	
 	@Override
 	protected int getLevelDecreasePerBlock(Instance instance) {
-		DimensionType dimensionType = MinecraftServer.getDimensionTypeRegistry().get(instance.getDimensionType());
-		return (dimensionType != null && dimensionType.ultrawarm()) ? 1 : 2;
+		return isFastLava(instance) ? 1 : 2;
 	}
 	
 	@Override
 	protected int getHoleRadius(Instance instance) {
-		DimensionType dimensionType = MinecraftServer.getDimensionTypeRegistry().get(instance.getDimensionType());
-		return (dimensionType != null && dimensionType.ultrawarm()) ? 4 : 2;
+		return isFastLava(instance) ? 4 : 2;
 	}
 	
 	@Override
@@ -57,8 +55,7 @@ public class LavaFluid extends FlowableFluid {
 	
 	@Override
 	public int getNextTickDelay(Instance instance, BlockVec point) {
-		DimensionType dimensionType = MinecraftServer.getDimensionTypeRegistry().get(instance.getDimensionType());
-		return (dimensionType != null && dimensionType.ultrawarm()) ? 10 : 30;
+		return isFastLava(instance) ? 10 : 30;
 	}
 	
 	@Override
@@ -96,6 +93,17 @@ public class LavaFluid extends FlowableFluid {
 	@Override
 	protected double getBlastResistance() {
 		return 100.0;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static boolean isFastLava(Instance instance) {
+		boolean value = EnvironmentAttribute.FAST_LAVA.defaultValue();
+		EnvironmentAttributeMap.Entry<?, ?> entry = instance.getCachedDimensionType()
+				.attributes().entries().get(EnvironmentAttribute.FAST_LAVA);
+		if (entry == null) return value;
+	
+		EnvironmentAttributeMap.Entry<Boolean, Object> booleanEntry = (EnvironmentAttributeMap.Entry<Boolean, Object>) entry;
+		return booleanEntry.modifier().modify(value, booleanEntry.argument());
 	}
 	
 	public static void fizz(Instance instance, BlockVec point) {

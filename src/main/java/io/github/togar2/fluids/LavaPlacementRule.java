@@ -16,7 +16,7 @@ public class LavaPlacementRule extends FluidPlacementRule {
 	@Override
 	public @NotNull Block blockUpdate(@NotNull UpdateState updateState) {
 		Instance instance = (Instance) updateState.instance();
-		BlockVec blockVec = new BlockVec(updateState.blockPosition());
+		BlockVec blockVec = updateState.blockPosition().asBlockVec();
 		
 		FluidState state = FluidState.of(updateState.currentBlock());
 		Block interaction = handleInteraction(instance, blockVec, state);
@@ -28,7 +28,7 @@ public class LavaPlacementRule extends FluidPlacementRule {
 	@Override
 	public @NotNull Block blockPlace(@NotNull PlacementState placementState) {
 		Instance instance = (Instance) placementState.instance();
-		BlockVec blockVec = new BlockVec(placementState.placePosition());
+		BlockVec blockVec = placementState.placePosition().asBlockVec();
 		
 		FluidState state = FluidState.of(placementState.block());
 		Block interaction = handleInteraction(instance, blockVec, state);

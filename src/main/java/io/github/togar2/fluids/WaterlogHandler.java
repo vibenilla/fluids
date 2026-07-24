@@ -23,7 +23,7 @@ public interface WaterlogHandler {
 		
 		// The placed state (waterlogged block) is different from the original fluid state (probably just water)
 		FluidState placedState = FluidState.of(currentBlock).setWaterlogged(true);
-		instance.placeBlock(new BlockHandler.Placement(placedState.block(), instance, point));
+		instance.placeBlock(new BlockHandler.Placement(placedState.block(), currentBlock, instance, point));
 		MinestomFluids.scheduleTick(instance, point, placedState);
 		return true;
 	}

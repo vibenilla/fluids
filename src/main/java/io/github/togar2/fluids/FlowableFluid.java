@@ -1,7 +1,5 @@
 package io.github.togar2.fluids;
 
-import it.unimi.dsi.fastutil.shorts.Short2BooleanMap;
-import it.unimi.dsi.fastutil.shorts.Short2BooleanOpenHashMap;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
@@ -16,6 +14,7 @@ import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class FlowableFluid extends Fluid {
@@ -106,7 +105,7 @@ public abstract class FlowableFluid extends Fluid {
 			// If there's 2 or more still fluid blocks around
 			// and below is still or a solid block, make this block still
 			Block downBlock = instance.getBlock(point.add(0, -1, 0));
-			if (downBlock.isSolid() || isMatchingSource(FluidState.of(downBlock))) {
+			if (downBlock.solid() || isMatchingSource(FluidState.of(downBlock))) {
 				return defaultState.asSource(false);
 			}
 		}
@@ -123,7 +122,7 @@ public abstract class FlowableFluid extends Fluid {
 
 	private boolean canPassTrough(BlockFace face, FluidState from, FluidState to) {
 		// Check if both block faces merged occupy the whole square
-		return !from.block().registry().collisionShape().isOccluded(to.block().registry().collisionShape(), face);
+		return !from.block().collisionShape().isOccluded(to.block().collisionShape(), face);
 	}
 
 	/**
@@ -143,7 +142,7 @@ public abstract class FlowableFluid extends Fluid {
 	protected Map<BlockFace, FluidState> getSpread(Instance instance, BlockVec point, FluidState flowing) {
 		int weight = 1000;
 		EnumMap<BlockFace, FluidState> map = new EnumMap<>(BlockFace.class);
-		Short2BooleanOpenHashMap holeMap = new Short2BooleanOpenHashMap();
+		Map<Short, Boolean> holeMap = new HashMap<>();
 
 		for (BlockFace direction : HORIZONTAL) {
 			BlockVec directionPoint = point.relative(direction);
@@ -178,7 +177,7 @@ public abstract class FlowableFluid extends Fluid {
 	}
 
 	protected int getWeight(Instance instance, BlockVec point, int initialWeight, BlockFace skipCheck,
-	                        FluidState flowing, BlockVec originalPoint, Short2BooleanMap short2BooleanMap) {
+	                        FluidState flowing, BlockVec originalPoint, Map<Short, Boolean> holeMap) {
 		// NOTE: flowing will often be air
 
 		int weight = 1000;
@@ -191,7 +190,7 @@ public abstract class FlowableFluid extends Fluid {
 			if (preventFlowTo(instance, directionPoint, flowing, defaultState.asFlowing(7, false), directionState, direction))
 				continue;
 
-			boolean down = short2BooleanMap.computeIfAbsent(id, s -> {
+			boolean down = holeMap.computeIfAbsent(id, s -> {
 				BlockVec downPoint = directionPoint.add(0, -1, 0);
 				return isWaterHole(instance, defaultState.asFlowing(7, false), downPoint);
 			});
@@ -199,7 +198,7 @@ public abstract class FlowableFluid extends Fluid {
 
 			if (initialWeight < getHoleRadius(instance)) {
 				int newWeight = getWeight(instance, directionPoint, initialWeight + 1,
-						direction.getOppositeFace(), directionState, originalPoint, short2BooleanMap);
+						direction.getOppositeFace(), directionState, originalPoint, holeMap);
 				if (newWeight < weight) weight = newWeight;
 			}
 		}
@@ -222,7 +221,7 @@ public abstract class FlowableFluid extends Fluid {
 	 */
 	private boolean canHoldFluid(Block block) {
 		if (FluidState.canBeWaterlogged(block)) return true;
-		if (block.isSolid()) return false;
+		if (block.solid()) return false;
 
 		Registry<Block> registry = MinecraftServer.process().blocks();
 
@@ -276,7 +275,7 @@ public abstract class FlowableFluid extends Fluid {
 	 * Puts the new fluid at the position, executing {@code onBreakingBlock()} before breaking any non-air block.
 	 */
 	protected void flow(Instance instance, BlockVec point, FluidState newState, BlockFace direction) {
-		if (point.y() < MinecraftServer.getDimensionTypeRegistry().get(instance.getDimensionType()).minY())
+		if (point.y() < instance.getCachedDimensionType().minY())
 			return; // Prevent errors when flowing into the void
 
 		Block currentBlock = instance.getBlock(point);
@@ -286,7 +285,7 @@ public abstract class FlowableFluid extends Fluid {
 		} else {
 			if (currentBlock.equals(newState.block())) return; // Prevent unnecessary updates
 
-			if (!currentBlock.isAir()) {
+			if (!currentBlock.air()) {
 				newState = onBreakingBlock(instance, point, direction, currentBlock, newState);
 				if (newState == null) {
 					// Event has been cancelled
@@ -294,7 +293,7 @@ public abstract class FlowableFluid extends Fluid {
 				}
 			}
 
-			instance.placeBlock(new BlockHandler.Placement(newState.block(), instance, point));
+			instance.placeBlock(new BlockHandler.Placement(newState.block(), currentBlock, instance, point));
 		}
 	}
 

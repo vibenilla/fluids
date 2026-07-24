@@ -1,1 +1,1 @@
-rootProject.name = "MinestomFluids"
+rootProject.name = "fluids"
