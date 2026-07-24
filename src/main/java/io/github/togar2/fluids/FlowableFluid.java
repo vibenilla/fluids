@@ -1,5 +1,7 @@
 package io.github.togar2.fluids;
 
+import it.unimi.dsi.fastutil.shorts.Short2BooleanMap;
+import it.unimi.dsi.fastutil.shorts.Short2BooleanOpenHashMap;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
@@ -14,7 +16,6 @@ import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class FlowableFluid extends Fluid {
@@ -142,7 +143,7 @@ public abstract class FlowableFluid extends Fluid {
 	protected Map<BlockFace, FluidState> getSpread(Instance instance, BlockVec point, FluidState flowing) {
 		int weight = 1000;
 		EnumMap<BlockFace, FluidState> map = new EnumMap<>(BlockFace.class);
-		Map<Short, Boolean> holeMap = new HashMap<>();
+		Short2BooleanOpenHashMap holeMap = new Short2BooleanOpenHashMap();
 
 		for (BlockFace direction : HORIZONTAL) {
 			BlockVec directionPoint = point.relative(direction);
@@ -177,7 +178,7 @@ public abstract class FlowableFluid extends Fluid {
 	}
 
 	protected int getWeight(Instance instance, BlockVec point, int initialWeight, BlockFace skipCheck,
-	                        FluidState flowing, BlockVec originalPoint, Map<Short, Boolean> holeMap) {
+	                        FluidState flowing, BlockVec originalPoint, Short2BooleanMap holeMap) {
 		// NOTE: flowing will often be air
 
 		int weight = 1000;

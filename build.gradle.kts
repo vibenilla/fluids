@@ -60,6 +60,7 @@ repositories {
 
 dependencies {
     compileOnly("net.minestom:minestom:$minestomVersion")
+    compileOnly("it.unimi.dsi:fastutil:8.5.18")
     testImplementation("net.minestom:minestom:$minestomVersion")
     testImplementation("net.minestom:testing:$minestomVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:6.1.2")
