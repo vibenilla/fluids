@@ -27,13 +27,14 @@ public abstract class FlowableFluid extends Fluid {
 	public void onTick(Instance instance, BlockVec point, FluidState state) {
 		if (!state.isSource()) {
 			FluidState updated = getUpdatedState(instance, point, state);
+			int tickDelay = getNextSpreadDelay(instance, point, state, updated);
 			if (updated.isEmpty()) {
 				state = updated;
 				instance.setBlock(point, Block.AIR);
 			} else if (!updated.equals(state)) {
 				state = updated;
 				instance.setBlock(point, updated.block());
-				MinestomFluids.scheduleTick(instance, point, getNextSpreadDelay(instance, point, state, updated));
+				MinestomFluids.scheduleTick(instance, point, tickDelay);
 			}
 		}
 		trySpread(instance, point, state);
