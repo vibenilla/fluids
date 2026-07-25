@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class LavaFluid extends FlowableFluid {
-	public static final float MIN_REPLACE_HEIGHT = 0.44444445F;
+	public static final double MIN_REPLACE_HEIGHT = 4.0 / 9.0;
 	
 	public LavaFluid() {
 		super(Block.LAVA, Material.LAVA_BUCKET);
