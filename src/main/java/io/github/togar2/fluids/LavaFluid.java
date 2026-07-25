@@ -75,13 +75,17 @@ public class LavaFluid extends FlowableFluid {
 	@Override
 	protected void flow(Instance instance, BlockVec point, FluidState newState, BlockFace direction) {
 		if (direction == BlockFace.BOTTOM) {
-			FluidState currentState = FluidState.of(instance.getBlock(point));
+			Block currentBlock = instance.getBlock(point);
+			FluidState currentState = FluidState.of(currentBlock);
 			if (currentState.isWater() && newState.isLava()) {
-				LavaSolidifyEvent event = new LavaSolidifyEvent(instance, point, direction, Block.STONE);
-				EventDispatcher.call(event);
-				if (event.isCancelled()) return;
+				if (currentBlock.liquid()) {
+					LavaSolidifyEvent event = new LavaSolidifyEvent(instance, point, direction, Block.STONE);
+					EventDispatcher.call(event);
+					if (event.isCancelled()) return;
+					
+					instance.setBlock(point, event.getResultingBlock());
+				}
 				
-				instance.setBlock(point, event.getResultingBlock());
 				fizz(instance, point);
 				return;
 			}
