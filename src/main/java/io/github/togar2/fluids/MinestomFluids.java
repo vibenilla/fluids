@@ -8,6 +8,8 @@ import net.minestom.server.event.instance.InstanceTickEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.tag.Tag;
+import net.minestom.server.world.attribute.EnvironmentAttribute;
+import net.minestom.server.world.attribute.EnvironmentAttributeMap;
 
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +93,21 @@ public class MinestomFluids {
 	
 	public static WaterlogHandler getWaterlog(Block block) {
 		return WATERLOG_HANDLERS.get(block.id());
+	}
+	
+	/**
+	 * Resolves an environment attribute for the dimension the instance is in,
+	 * falling back to the attribute default when the dimension does not override it.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T getEnvironmentAttribute(Instance instance, EnvironmentAttribute<T> attribute) {
+		T value = attribute.defaultValue();
+		EnvironmentAttributeMap.Entry<?, ?> entry = instance.getCachedDimensionType()
+				.attributes().entries().get(attribute);
+		if (entry == null) return value;
+		
+		EnvironmentAttributeMap.Entry<T, Object> typedEntry = (EnvironmentAttributeMap.Entry<T, Object>) entry;
+		return typedEntry.modifier().modify(value, typedEntry.argument());
 	}
 	
 	public static void init() {

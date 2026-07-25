@@ -9,7 +9,6 @@ import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.server.play.WorldEventPacket;
 import net.minestom.server.utils.PacketSendingUtils;
 import net.minestom.server.world.attribute.EnvironmentAttribute;
-import net.minestom.server.world.attribute.EnvironmentAttributeMap;
 import net.minestom.server.worldevent.WorldEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,15 +93,8 @@ public class LavaFluid extends FlowableFluid {
 		super.flow(instance, point, newState, direction);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static boolean isFastLava(Instance instance) {
-		boolean value = EnvironmentAttribute.FAST_LAVA.defaultValue();
-		EnvironmentAttributeMap.Entry<?, ?> entry = instance.getCachedDimensionType()
-				.attributes().entries().get(EnvironmentAttribute.FAST_LAVA);
-		if (entry == null) return value;
-	
-		EnvironmentAttributeMap.Entry<Boolean, Object> booleanEntry = (EnvironmentAttributeMap.Entry<Boolean, Object>) entry;
-		return booleanEntry.modifier().modify(value, booleanEntry.argument());
+		return MinestomFluids.getEnvironmentAttribute(instance, EnvironmentAttribute.FAST_LAVA);
 	}
 	
 	public static void fizz(Instance instance, BlockVec point) {
