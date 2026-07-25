@@ -48,16 +48,18 @@ public class MinestomFluids {
 		long age = instance.getWorldAge();
 		
 		var updates = instance.getTag(TICK_UPDATES);
-		if (updates == null) {
-			updates = new ConcurrentHashMap<>();
-			instance.setTag(TICK_UPDATES, updates);
-		}
+		if (updates == null) return;
 		
-		Set<BlockVec> currentUpdate = updates.remove(age);
-		if (currentUpdate == null) return;
-		
-		for (BlockVec point : currentUpdate) {
-			tick(event.getInstance(), point);
+		for (var iterator = updates.entrySet().iterator(); iterator.hasNext(); ) {
+			var entry = iterator.next();
+			if (entry.getKey() > age) continue;
+			
+			Set<BlockVec> currentUpdate = entry.getValue();
+			iterator.remove();
+			
+			for (BlockVec point : currentUpdate) {
+				tick(instance, point);
+			}
 		}
 	}
 	
