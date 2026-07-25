@@ -222,7 +222,7 @@ public abstract class FlowableFluid extends Fluid {
 	 * @return whether this block can hold any fluid
 	 */
 	private boolean canHoldFluid(Block block) {
-		if (FluidState.canBeWaterlogged(block)) return true;
+		if (MinestomFluids.getWaterlog(block) != null) return true;
 		if (block.blocksMotion()) return false;
 
 		Registry<Block> registry = MinecraftServer.process().blocks();

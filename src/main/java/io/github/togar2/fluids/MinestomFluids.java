@@ -10,6 +10,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.tag.Tag;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,15 +22,22 @@ public class MinestomFluids {
 	
 	public static final FluidState AIR_STATE = new FluidState(Block.AIR, EMPTY);
 	
+	/**
+	 * Blocks which always contain a water source but never accept a fluid being placed into them.
+	 */
+	private static final List<Block> WATER_PLANTS = List.of(
+			Block.KELP, Block.KELP_PLANT, Block.SEAGRASS, Block.TALL_SEAGRASS
+	);
+	
 	private static final Map<Integer, WaterlogHandler> WATERLOG_HANDLERS = new ConcurrentHashMap<>();
 	
 	private static final Tag<Map<Long, Set<BlockVec>>> TICK_UPDATES = Tag.Transient("fluid-tick-updates");
 	
 	public static Fluid get(Block block) {
-		if (block.compare(Block.WATER) || FluidState.isWaterlogged(block)) {
-			return WATER;
-		} else if (block.compare(Block.LAVA)) {
+		if (block.compare(Block.LAVA)) {
 			return LAVA;
+		} else if (block.fluid()) {
+			return WATER;
 		} else {
 			return EMPTY;
 		}
@@ -86,6 +94,10 @@ public class MinestomFluids {
 	public static void init() {
 		MinecraftServer.getBlockManager().registerBlockPlacementRule(new FluidPlacementRule(Block.WATER));
 		MinecraftServer.getBlockManager().registerBlockPlacementRule(new LavaPlacementRule(Block.LAVA));
+		
+		for (Block block : WATER_PLANTS) {
+			registerWaterlog(block, WaterlogHandler.REJECTING);
+		}
 		
 		for (Block block : Block.values()) {
 			if (FluidState.canBeWaterlogged(block)) {

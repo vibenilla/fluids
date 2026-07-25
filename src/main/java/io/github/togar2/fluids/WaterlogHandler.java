@@ -8,6 +8,26 @@ import net.minestom.server.instance.block.BlockHandler;
 public interface WaterlogHandler {
 	WaterlogHandler DEFAULT = new WaterlogHandler() {};
 	
+	/**
+	 * Handler for blocks which hold a fluid but never let one be placed into or taken out of them.
+	 */
+	WaterlogHandler REJECTING = new WaterlogHandler() {
+		@Override
+		public boolean canPlaceFluid(Instance instance, BlockVec point, Block block, FluidState state) {
+			return false;
+		}
+		
+		@Override
+		public boolean canRemoveFluid(Instance instance, BlockVec point, FluidState state) {
+			return false;
+		}
+		
+		@Override
+		public boolean placeFluid(Instance instance, BlockVec point, FluidState state) {
+			return false;
+		}
+	};
+	
 	default boolean canPlaceFluid(Instance instance, BlockVec point, Block block, FluidState state) {
 		return state.isWater() && state.isSource();
 	}

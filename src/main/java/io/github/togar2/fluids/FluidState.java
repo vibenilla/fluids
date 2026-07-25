@@ -66,24 +66,26 @@ public record FluidState(Block block, Fluid fluid) {
 	}
 	
 	public static boolean isSource(Block block) {
-		if (isWaterlogged(block)) return true;
-		String levelStr = block.getProperty("level");
-		return levelStr != null && Integer.parseInt(levelStr) == 0;
+		if (!block.fluid()) return false;
+		if (!block.liquid()) return true;
+		String levelString = block.getProperty("level");
+		return levelString == null || Integer.parseInt(levelString) == 0;
 	}
 	
 	public static int getLevel(Block block) {
-		if (isWaterlogged(block)) return 8;
-		String levelStr = block.getProperty("level");
-		if (levelStr == null) return 0;
-		int level = Integer.parseInt(levelStr);
+		if (!block.fluid()) return 0;
+		if (!block.liquid()) return 8;
+		String levelString = block.getProperty("level");
+		if (levelString == null) return 8;
+		int level = Integer.parseInt(levelString);
 		if (level >= 8) return 8; // Falling water
 		return 8 - level;
 	}
 	
 	public static boolean isFalling(Block block) {
-		String levelStr = block.getProperty("level");
-		if (levelStr == null) return false;
-		return Integer.parseInt(levelStr) >= 8;
+		if (!block.liquid()) return false;
+		String levelString = block.getProperty("level");
+		return levelString != null && Integer.parseInt(levelString) >= 8;
 	}
 	
 	public static boolean canBeWaterlogged(Block block) {
