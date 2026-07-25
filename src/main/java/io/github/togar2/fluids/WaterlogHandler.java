@@ -33,13 +33,13 @@ public interface WaterlogHandler {
 	}
 	
 	default boolean canRemoveFluid(Instance instance, BlockVec point, FluidState state) {
-		return true;
+		return state.isWaterlogged();
 	}
 	
 	default boolean placeFluid(Instance instance, BlockVec point, FluidState state) {
 		Block currentBlock = instance.getBlock(point);
+		if (FluidState.isWaterlogged(currentBlock)) return false;
 		if (!canPlaceFluid(instance, point, currentBlock, state)) return false;
-		if (state.isWaterlogged()) return false;
 		
 		// The placed state (waterlogged block) is different from the original fluid state (probably just water)
 		FluidState placedState = FluidState.of(currentBlock).setWaterlogged(true);
