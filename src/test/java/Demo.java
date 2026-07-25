@@ -1,5 +1,6 @@
 import io.github.togar2.fluids.FluidState;
 import io.github.togar2.fluids.MinestomFluids;
+import io.github.togar2.fluids.WaterFluid;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
@@ -37,10 +38,14 @@ void main() {
                 var waterlogHandler = MinestomFluids.getWaterlog(block);
 
                 if (material == Material.WATER_BUCKET) {
-                    if (waterlogHandler != null) {
-                        waterlogHandler.placeFluid(blockInstance, blockPosition, MinestomFluids.WATER.getDefaultState());
+                    var target = waterlogHandler != null ? blockPosition : blockPosition.relative(event.getBlockFace());
+
+                    if (WaterFluid.evaporates(blockInstance)) {
+                        WaterFluid.evaporate(blockInstance, target);
+                    } else if (waterlogHandler != null) {
+                        waterlogHandler.placeFluid(blockInstance, target, MinestomFluids.WATER.getDefaultState());
                     } else {
-                        placeFluid(blockInstance, blockPosition.relative(event.getBlockFace()), Block.WATER);
+                        placeFluid(blockInstance, target, Block.WATER);
                     }
                 } else if (material == Material.LAVA_BUCKET) {
                     placeFluid(blockInstance, blockPosition.relative(event.getBlockFace()), Block.LAVA);
