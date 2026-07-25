@@ -47,7 +47,7 @@ void main() {
                 } else if (material == Material.BUCKET) {
                     if (waterlogHandler != null && waterlogHandler.canRemoveFluid(blockInstance, blockPosition, FluidState.of(block))) {
                         blockInstance.setBlock(blockPosition, FluidState.setWaterlogged(block, false));
-                    } else if (block.liquid()) {
+                    } else if (block.liquid() && FluidState.isSource(block)) {
                         event.getPlayer().setItemInHand(event.getHand(), FluidState.of(block).fluid().getBucket());
                         blockInstance.setBlock(blockPosition, Block.AIR);
                     }
