@@ -160,7 +160,7 @@ public abstract class FlowableFluid extends Fluid {
 
 			boolean down = holeMap.computeIfAbsent(id, s -> {
 				BlockVec downPoint = directionPoint.add(0, -1, 0);
-				return isWaterHole(instance, defaultState.asFlowing(newState.getLevel(), false), downPoint);
+				return isWaterHole(instance, directionState, downPoint);
 			});
 
 			int newWeight = down ? 0 : getWeight(instance, directionPoint, 1,
@@ -194,7 +194,7 @@ public abstract class FlowableFluid extends Fluid {
 
 			boolean down = holeMap.computeIfAbsent(id, s -> {
 				BlockVec downPoint = directionPoint.add(0, -1, 0);
-				return isWaterHole(instance, defaultState.asFlowing(7, false), downPoint);
+				return isWaterHole(instance, directionState, downPoint);
 			});
 			if (down) return initialWeight;
 
@@ -251,11 +251,11 @@ public abstract class FlowableFluid extends Fluid {
 	 * Used to determine if water should prioritize going to this point.
 	 * @return whether the specified point is a hole
 	 */
-	private boolean isWaterHole(Instance instance, FluidState flowing, BlockVec flowTo) {
+	private boolean isWaterHole(Instance instance, FluidState above, BlockVec flowTo) {
 		FluidState flowToState = FluidState.of(instance.getBlock(flowTo));
-		if (!canPassTrough(BlockFace.BOTTOM, flowing, flowToState)) return false; // Don't flow down if the path is obstructed
-		if (flowing.sameFluid(flowToState)) return true; // Always flow down when the fluid is the same
-		return canFill(instance, flowTo, flowToState.block(), flowing); // Flow down when the block beneath can be filled
+		if (!canPassTrough(BlockFace.BOTTOM, above, flowToState)) return false; // Don't flow down if the path is obstructed
+		if (flowToState.fluid() == this) return true; // Always flow down when the fluid is the same
+		return canFill(instance, flowTo, flowToState.block(), defaultState.asFlowing(7, false)); // Flow down when the block beneath can be filled
 	}
 
 	private boolean canMaybeFlowThrough(FluidState flowing, FluidState state,
