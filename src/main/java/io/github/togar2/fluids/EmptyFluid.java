@@ -29,11 +29,6 @@ public class EmptyFluid extends Fluid {
 	}
 	
 	@Override
-	protected double getBlastResistance() {
-		return 0;
-	}
-	
-	@Override
 	public double getHeight(FluidState state, Instance instance, BlockVec point) {
 		return 0;
 	}

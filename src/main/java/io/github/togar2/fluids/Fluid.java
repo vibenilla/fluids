@@ -35,8 +35,6 @@ public abstract class Fluid {
 		return false;
 	}
 	
-	protected abstract double getBlastResistance();
-	
 	public abstract double getHeight(FluidState state, Instance instance, BlockVec point);
 	public abstract double getHeight(FluidState state);
 }

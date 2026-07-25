@@ -46,9 +46,4 @@ public class WaterFluid extends FlowableFluid {
 	                                    FluidState newState, BlockFace direction) {
 		return direction == BlockFace.BOTTOM && !newState.isWater();
 	}
-	
-	@Override
-	protected double getBlastResistance() {
-		return 100;
-	}
 }

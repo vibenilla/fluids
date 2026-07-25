@@ -94,11 +94,6 @@ public class LavaFluid extends FlowableFluid {
 		super.flow(instance, point, newState, direction);
 	}
 	
-	@Override
-	protected double getBlastResistance() {
-		return 100.0;
-	}
-	
 	@SuppressWarnings("unchecked")
 	private static boolean isFastLava(Instance instance) {
 		boolean value = EnvironmentAttribute.FAST_LAVA.defaultValue();
