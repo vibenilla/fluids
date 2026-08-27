@@ -3,7 +3,7 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     `java-library`
-    id("com.vanniktech.maven.publish") version "0.37.0"
+    `maven-publish`
 }
 
 description = "Water and lava physics for Minestom"
@@ -11,45 +11,56 @@ group = "rocks.minestom"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 val minestomVersion = "2026.07.22-26.2"
+val mcVersion = minestomVersion.split("-")[1]
+val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
+version = "$date-$mcVersion"
 
-mavenPublishing {
-    val mcVersion = minestomVersion.split("-")[1]
-    val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
-    val version = "$date-$mcVersion"
-    coordinates(project.group.toString(), project.name, version)
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
 
-    publishToMavenCentral()
+            pom {
+                name = project.name
+                description = project.description
+                url = "https://github.com/vibenilla/fluids"
 
-    if (project.hasProperty("signing.keyId") || project.hasProperty("signingInMemoryKey")) {
-        signAllPublications()
+                licenses {
+                    license {
+                        name = "MIT"
+                        url = "https://opensource.org/license/mit"
+                    }
+                }
+
+                developers {
+                    developer {
+                        name = "mudkip"
+                        id = "mudkipdev"
+                        email = "mudkip@mudkip.dev"
+                        url = "https://mudkip.dev"
+                    }
+                }
+
+                scm {
+                    url = "https://github.com/vibenilla/fluids"
+                    connection = "scm:git:git://github.com/vibenilla/fluids.git"
+                    developerConnection = "scm:git:ssh://git@github.com/vibenilla/fluids.git"
+                }
+            }
+        }
     }
 
-    pom {
-        name = project.name
-        description = project.description
-        url = "https://github.com/vibenilla/fluids"
-
-        licenses {
-            license {
-                name = "MIT"
-                url = "https://opensource.org/license/mit"
-            }
-        }
-
-        developers {
-            developer {
-                name = "mudkip"
-                id = "mudkipdev"
-                email = "mudkip@mudkip.dev"
-                url = "https://mudkip.dev"
-            }
-        }
-
-        scm {
-            url = "https://github.com/vibenilla/fluids"
-            connection = "scm:git:git://github.com/vibenilla/fluids.git"
-            developerConnection = "scm:git:ssh://git@github.com/vibenilla/fluids.git"
+    repositories {
+        maven {
+            name = "skylite"
+            url = uri("https://maven.skylite.gg/releases")
+            credentials(PasswordCredentials::class)
         }
     }
 }
